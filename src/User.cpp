@@ -44,7 +44,7 @@ UserAll::~UserAll() {
     users.Clear();
 }
 
-void UserAll::Register(const char *userid, const char *password, const char *username) {
+void UserAll::Register(const char *userid, const char *password, const char *username, Diary &diary) {
     /// 此处的error可以在TokenScanner类里面进行
     /*error.customer1(userid);
     error.customer1(password);
@@ -57,6 +57,8 @@ void UserAll::Register(const char *userid, const char *password, const char *use
     else {
         new_customer.permission = 1;// 顾客状态
     }
+    Record tmp(userid, "Register", 0);
+    diary.write_diary(tmp);
 }
 
 void UserAll::su(const char *userid, const char *password, Diary &diary) {
@@ -78,8 +80,7 @@ void UserAll::su(const char *userid, const char *password, Diary &diary) {
     //users.Delete(su_customer);
     //users.Insert(su_customer);
     /// 写入日志
-    std::string command = "su";
-    Record tmp(userid, command, su_customer.permission);
+    Record tmp(userid, "su", su_customer.permission);
     diary.write_diary(tmp);
 }
 
@@ -116,7 +117,7 @@ void UserAll::logout(Diary &diary) {
     diary.write_diary(tmp);
 }
 
-void UserAll::Delete(const char *userid) {
+void UserAll::Delete(const char *userid, std::string command, Diary &diary) {
     if (current_permission < 7) throw InvalidExp();
     User now_user(userid);
     User delete_user;
@@ -125,9 +126,11 @@ void UserAll::Delete(const char *userid) {
     if (delete_user.log_status) throw InvalidExp(); // 删除的账户在登录中
     /// 优化：在delete之前find的index
     users.Delete(delete_user);
+    Record tmp(userid, std::move(command), 7);
+    diary.write_diary(tmp);
 }
 
-void UserAll::passwd(const char *userid, const char *current, const char *new_one) {
+void UserAll::passwd(const char *userid, const char *current, const char *new_one, std::string command, Diary &diary) {
     if (current_permission == 0) throw InvalidExp();
     if (current == nullptr && current_permission < 7) throw InvalidExp();
     User change_user(userid);
@@ -136,13 +139,17 @@ void UserAll::passwd(const char *userid, const char *current, const char *new_on
     /// 存在问题
     if (!exist) throw InvalidExp();
     //error.customer1(new_one);
+    //if (strcmp(LogUsers.back().UserID, userid) == 0) throw InvalidExp();
     if (strcmp(new_one, target.Password) == 0) throw InvalidExp();
     if (current != nullptr) if (strcmp(current, target.Password) != 0) throw InvalidExp();
+    if (strcmp(userid, LogUsers.back().UserID) == 0) strcpy(LogUsers.back().Password, new_one);// 修改现在用户的密码
     strcpy(target.Password, new_one);
     users.Update(target);
+    Record tmp(userid, std::move(command), current_permission);
+    diary.write_diary(tmp);
 }
 
-void UserAll::useradd(const char *userid, const char *Passwd, int privilege, const char *username) {
+void UserAll::useradd(const char *userid, const char *Passwd, int privilege, const char *username, std::string command, Diary &diary) {
     //error.permission(privilege);
     if (current_permission < 3) throw InvalidExp();
     if (current_permission < privilege) throw InvalidExp();
@@ -150,6 +157,8 @@ void UserAll::useradd(const char *userid, const char *Passwd, int privilege, con
     User add_customer(userid, Passwd, username, privilege);
     bool exist = users.Insert(add_customer);
     if (!exist) throw InvalidExp();
+   // Record tmp(userid, std::move(command), current_permission);
+   // diary.write_diary(tmp);
 }
 
 /*void UserAll::select(const char *isbn_, Book &book) {
