@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 include_directories(include)
 
 add_executable(code
-        BookStorefinal src/main.cpp
+        src/main.cpp
         src/Book.cpp
         src/Finance.cpp
         src/User.cpp
