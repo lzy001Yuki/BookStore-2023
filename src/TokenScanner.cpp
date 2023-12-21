@@ -91,11 +91,17 @@ void TokenScanner::book3(std::string str) {
 // 检查price, totalCost
 double TokenScanner::book4(std::string str) {
     if (str.length() > 13) throw InvalidExp();
+    bool flag = false;
+    for (int i = 0; i < str.size() - 1; i++) {
+        if (str[i] == '.') {
+            if (!flag) {
+                flag = true;
+                if (i != str.size() - 3) throw InvalidExp();
+            } else throw InvalidExp();
+        }
+    }
     double x = std::stod(str);
-    long y = floor(x * 100);
-    double z = y * 1.0 / 100;
-    if (x != z) throw InvalidExp();
-    return z;
+    return x;
 }
 
 // 剪切show指令
