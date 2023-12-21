@@ -134,10 +134,10 @@ void Book::modify(const char *isbn, const char *name, const char *author, const 
         book_name.Insert(new_name_isbn);
     }
     if (a_flag) {
-        Node pre_author_isbn(select_info.Author, now_user.select_isbn);
+        Key pre_author_isbn(select_info.Author, now_user.select_isbn);
         book_author.Delete(pre_author_isbn);
         strcpy(select_info.Author, author);// book_isbn更改
-        Node new_author_isbn(select_info.Author, now_user.select_isbn);
+        Key new_author_isbn(select_info.Author, now_user.select_isbn);
         book_author.Insert(new_author_isbn);
     }
     // 处理关键字
@@ -302,14 +302,20 @@ void Book::show(const char *isbn, const char *name, const char *author, const ch
         return;
     }
     if (author != nullptr) {
-        Node author_isbn(author);
-        Node target;
-        bool exist = book_author.Find(author_isbn, target);
+        Key author_isbn(author);
+        std::vector<Key> ans;
+        bool exist = book_author.FindAll(author_isbn, ans);
         if (!exist) {
             std::cout<<'\n';
             return;
         }
-        print_isbn(target.isbn);
+        if (ans.empty()) {
+            std::cout<<'\n';
+            return;
+        }// 是否多余？？？
+        for (int i = 0; i < ans.size(); i++) {
+            print_isbn(ans[i].isbn);
+        }
         return;
     }
     if (keyword != nullptr) {
@@ -384,6 +390,8 @@ void Book::show_all(UserAll &user_all) {
 }
 
 void Book::select(const char* isbn_, UserAll &user_all) {
+    if (user_all.LogUsers.empty()) throw InvalidExp();
+    if (user_all.LogUsers.back().permission < 3) throw InvalidExp();
     BookInfo obj1(isbn_), obj2;
     bool exist = book_isbn.Find(obj1, obj2);
     if (!exist) {
@@ -394,7 +402,7 @@ void Book::select(const char* isbn_, UserAll &user_all) {
         select_info = obj2;
     }
     user_all.LogUsers.back().select_one = true;
-    /// select_isbn存在的意义是什么？
+    /// select_isbn存在的意义是什么？可以用select_info.isbn代替？？
     strcpy(user_all.LogUsers.back().select_isbn, isbn_);
     //users.Update(LogUsers.back(), LogUsers.back().index_num);
     //users.Delete(LogUsers.back());
