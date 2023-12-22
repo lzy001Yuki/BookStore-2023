@@ -17,7 +17,8 @@ int Finance::get_total() {
     return total_count;
 }
 
-void Finance::show_finance(int count) {
+void Finance::show_finance(int count, UserAll &user_all) {
+    if (user_all.current_permission != 7) throw InvalidExp();
     int total_count = get_total();
     if (count > total_count) throw InvalidExp();
     if (count == 0) {
