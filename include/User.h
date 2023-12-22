@@ -71,15 +71,15 @@ public:
 
     void su(const char *UserID, const char *Password, Diary &diary);
 
-    void Register(const char *UserId, const char *Password, const char *Username);
+    void Register(const char *UserId, const char *Password, const char *Username, Diary &diary);
 
-    void Delete(const char *UserID);
+    void Delete(const char *UserID, std::string command, Diary &diary);
 
-    void useradd(const char *UserID, const char *Password, int privilege, const char *Username);
+    void useradd(const char *UserID, const char *Password, int privilege, const char *Username, std::string command, Diary &diary);
 
-    void passwd(const char *UserID, const char *CurrentPassword, const char *NewPassword);
+    void passwd(const char *UserID, const char *CurrentPassword, const char *NewPassword, std::string command, Diary &diary);
 
-    void logout(Diary &diary);
+    void logout(Diary &diary, Book &book);
 
     //void select(const char *isbn, Book &book);
 };
