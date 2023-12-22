@@ -84,7 +84,7 @@ void UserAll::su(const char *userid, const char *password, Diary &diary) {
     diary.write_diary(tmp);
 }
 
-void UserAll::logout(Diary &diary) {
+void UserAll::logout(Diary &diary, Book &book) {
     if (LogUsers.empty()) throw InvalidExp();
 
     if (current_permission == 0)  throw InvalidExp();
@@ -96,6 +96,8 @@ void UserAll::logout(Diary &diary) {
     //char empty[66] = {'\0'};
     //strcpy(out_customer.select_isbn, empty);// 无需保存选中图书
     out_customer.select_one = false;
+    BookInfo empty;
+    book.select_info = empty;
     //users.Update(out_customer, out_customer.index_num);
     //users.Delete(out_customer);
     //users.Insert(out_customer);
