@@ -195,9 +195,19 @@ void Book::modify(const char *isbn, const char *name, const char *author, const 
 }
 
 void Book::Import(int quantity, double total, UserAll &user_all, Finance &fin) {
+    /*char ch[] = "978-0-03-806690-2";
+    if (strcmp(select_info.ISBN, ch) == 0) {
+        std::cout<<"************************import"<<quantity<<'\n';
+        std::cout<<"************************remain"<<select_info.Quantity<<"\n";
+    }*/
     if (user_all.LogUsers.empty()) throw InvalidExp();
     User now_user = user_all.LogUsers.back();
-    if (now_user.permission < 3) throw InvalidExp();
+    if (now_user.permission < 3) {
+        /*if (strcmp(select_info.ISBN, ch) == 0) {
+            std::cout<<"************invalid************"<<'\n';
+        }*/
+        throw InvalidExp();
+    }
     if (!now_user.select_one) throw InvalidExp();
     /// 可以替换成select_info???
     /// !!!必须是select_info
@@ -224,6 +234,12 @@ void Book::Import(int quantity, double total, UserAll &user_all, Finance &fin) {
     //book_isbn.Update(target, target.index_num);
     //book_isbn.Delete(target);
     //book_isbn.Insert(target);
+
+    /*if (strcmp(select_info.ISBN, ch) == 0) {
+        std::cout<<"-----------------------"<<quantity<<"\n";
+        std::cout<<"now---------------------"<<select_info.Quantity<<'\n';
+    }*/
+
     book_isbn.Update(select_info);
 }
 
@@ -284,6 +300,13 @@ void Book::buy(const char *isbn, int quantity, UserAll &user_all, Finance &fin) 
 
     /// 输出格式？
     std::cout<<std::fixed<<std::setprecision(2)<<cost<<'\n';
+
+    /*char ch[] = "978-0-03-806690-2";
+    if (strcmp(buy_book.ISBN, ch) == 0) {
+        std::cout<<"buy-----------------"<<quantity<<'\n';
+        std::cout<<"--------------------"<<buy_book.Quantity<<'\n';
+    }*/
+
     book_isbn.Update(buy_book);
 }
 
