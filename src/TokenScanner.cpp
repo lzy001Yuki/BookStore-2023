@@ -96,7 +96,7 @@ double TokenScanner::book4(std::string str) {
         if (str[i] == '.') {
             if (!flag) {
                 flag = true;
-                if (i != str.size() - 3) throw InvalidExp();
+                if (i < str.size() - 3) throw InvalidExp();
             } else throw InvalidExp();
         }
     }
