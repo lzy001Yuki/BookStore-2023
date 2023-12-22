@@ -200,15 +200,16 @@ void Book::Import(int quantity, double total, UserAll &user_all, Finance &fin) {
     if (now_user.permission < 3) throw InvalidExp();
     if (!now_user.select_one) throw InvalidExp();
     /// 可以替换成select_info???
-    BookInfo target;
-    BookInfo tmp(now_user.select_isbn);
-    bool exist = book_isbn.Find(tmp, target);
-    if (!exist) throw InvalidExp();// 是不是有些冗余
-    target.Quantity += quantity;
+    /// !!!必须是select_info
+   // BookInfo target;
+   // BookInfo tmp(now_user.select_isbn);
+   // bool exist = book_isbn.Find(tmp, target);
+   // if (!exist) throw InvalidExp();// 是不是有些冗余
+    select_info.Quantity += quantity;
     double cost = total * 1.0 / quantity;
     /// 和finance 关联
     bool sta = false;
-    fin_info node(total, sta, now_user.UserID, quantity, target.ISBN, target.price, cost);
+    fin_info node(total, sta, now_user.UserID, quantity, select_info.ISBN, select_info.price, cost);
     int total_count;
     //fin.fin_report.get_info(total_count, 1);
     total_count = fin.get_total();
@@ -219,11 +220,11 @@ void Book::Import(int quantity, double total, UserAll &user_all, Finance &fin) {
 
     //imp_info imp(select_info.ISBN, total, quantity);
 
-    target.cost = cost;
+    select_info.cost = cost;
     //book_isbn.Update(target, target.index_num);
     //book_isbn.Delete(target);
     //book_isbn.Insert(target);
-    book_isbn.Update(target);
+    book_isbn.Update(select_info);
 }
 
 std::vector<std::string> Book::SplitWords(const char *keyword) {
@@ -260,8 +261,9 @@ std::vector<std::string> Book::SplitWords(const char *keyword) {
 
 void Book::buy(const char *isbn, int quantity, UserAll &user_all, Finance &fin) {
     if (quantity <= 0) throw InvalidExp();
+    if (user_all.LogUsers.empty()) throw InvalidExp();
     User now_user = user_all.LogUsers.back();
-    if (now_user.permission == 0) throw InvalidExp();
+    if (now_user.permission == 0) throw InvalidExp(); // 登录肯定permission不是零，可以删去
     BookInfo target(isbn);
     BookInfo buy_book;
     bool exist = book_isbn.Find(target, buy_book);
