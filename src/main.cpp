@@ -8,8 +8,8 @@
 bool processLine(std::string str, UserAll &user_all, Book &book, Finance &finance, Diary &log);
 
 int main() {
-    //freopen("testcase", "r", stdin);
-    //freopen("output", "w", stdout);
+    //freopen("input", "r", stdin);
+    freopen("output", "w", stdout);
 
     UserAll user_all;
     Book book;
@@ -19,6 +19,7 @@ int main() {
         std::string line;
         getline(std::cin, line);
         try {
+            if (std::cin.eof()) return 0;
             if (!processLine(line, user_all, book, fin, Log)) break;//return 0;
         } catch (InvalidExp &err) {
             std::cout<<err.what();
@@ -29,7 +30,7 @@ int main() {
 
 bool processLine(std::string str, UserAll &user_all, Book &book, Finance &finance, Diary &log) {
     std::vector<std::string> parse;
-    TokenScanner::SplitString(std::move(str), parse);
+    TokenScanner::SplitString(str, parse);
     // 如果没有语句，继续进行下一行
     if (parse.empty()) return true;
     std::string command = parse[0];
@@ -51,7 +52,7 @@ bool processLine(std::string str, UserAll &user_all, Book &book, Finance &financ
         }
     } else if (command == "logout") {
         if (parse.size() != 1) throw InvalidExp();
-        user_all.logout(log);
+        user_all.logout(log, book);
     } else if (command == "register") {
         if (parse.size() != 4) throw InvalidExp();
         TokenScanner::customer1(parse[1]);
@@ -66,7 +67,7 @@ bool processLine(std::string str, UserAll &user_all, Book &book, Finance &financ
         strcpy(userid, parse[1].c_str());
         strcpy(passwd, parse[2].c_str());
         strcpy(username, parse[3].c_str());
-        user_all.Register(userid, passwd, username);
+        user_all.Register(userid, passwd, username, log);
     } else if (command == "passwd") {
         if (parse.size() < 3 || parse.size() > 4) throw InvalidExp();
         TokenScanner::customer1(parse[1]);
@@ -82,13 +83,13 @@ bool processLine(std::string str, UserAll &user_all, Book &book, Finance &financ
             //const char *currentPasswd = parse[2].c_str();
             char currentPasswd[40] = {'\0'};
             strcpy(currentPasswd, parse[2].c_str());
-            user_all.passwd(userid, currentPasswd, newPasswd);
+            user_all.passwd(userid, currentPasswd, newPasswd, command, log);
         } else {
             TokenScanner::customer1(parse[2]);
             //const char *newPasswd = parse[2].c_str();
             char newPasswd[40] = {'\0'};
             strcpy(newPasswd, parse[2].c_str());
-            user_all.passwd(userid, nullptr, newPasswd);
+            user_all.passwd(userid, nullptr, newPasswd, command, log);
         }
     } else if (command == "useradd") {
         if (parse.size() != 5) throw InvalidExp();
@@ -106,14 +107,14 @@ bool processLine(std::string str, UserAll &user_all, Book &book, Finance &financ
         char username[40] = {'\0'};
         strcpy(username, parse[4].c_str());
         int privilege = std::stoi(parse[3]);
-        user_all.useradd(userid, passwd, privilege, username);
+        user_all.useradd(userid, passwd, privilege, username,command, log);
     } else if (command == "delete") {
         if (parse.size() != 2) throw InvalidExp();
         TokenScanner::customer1(parse[1]);
         //const char *userid = parse[1].c_str();
         char userid[40] = {'\0'};
         strcpy(userid, parse[1].c_str());
-        user_all.Delete(userid);
+        user_all.Delete(userid, command, log);
     } else if (command == "select") {
         if (parse.size() != 2) throw InvalidExp();
         TokenScanner::book1(parse[1]);
@@ -180,10 +181,10 @@ bool processLine(std::string str, UserAll &user_all, Book &book, Finance &financ
                 if (parse.size() > 3) throw InvalidExp();
                 if (parse.size() == 3) {
                     int count = TokenScanner::StringToInteger(parse[2]);
-                    finance.show_finance(count);
+                    finance.show_finance(count, user_all);
                 } else {
                     int total = finance.get_total();
-                    finance.show_finance(total);
+                    finance.show_finance(total, user_all);
                 }
             }
         }
