@@ -9,7 +9,7 @@ bool processLine(std::string str, UserAll &user_all, Book &book, Finance &financ
 
 int main() {
     //freopen("input", "r", stdin);
-    freopen("output", "w", stdout);
+    //freopen("output", "w", stdout);
 
     UserAll user_all;
     Book book;
@@ -17,9 +17,11 @@ int main() {
     Diary Log;
     while (true) {
         std::string line;
-        getline(std::cin, line);
+        //getline(std::cin, line);
         try {
-            if (std::cin.eof()) return 0;
+            if (!getline(std::cin, line)) {
+                line = "quit";
+            }
             if (!processLine(line, user_all, book, fin, Log)) break;//return 0;
         } catch (InvalidExp &err) {
             std::cout<<err.what();
@@ -34,7 +36,11 @@ bool processLine(std::string str, UserAll &user_all, Book &book, Finance &financ
     // 如果没有语句，继续进行下一行
     if (parse.empty()) return true;
     std::string command = parse[0];
-    if (command == "quit" || command == "exit") return false;
+    if (command == "quit" || command == "exit") {
+        user_all.LogUsers.clear();
+        user_all.log_map.clear();
+        return false;
+    }
     if (command == "su") {
         if (parse.size() == 1 || parse.size() > 3) throw InvalidExp();
         TokenScanner::customer1(parse[1]);
