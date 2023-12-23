@@ -18,9 +18,7 @@ private:
     bool status; // true 表示收入， false表示支出
     char userid[66] = {'\0'};
     int sum = 0;
-    //BookInfo select_info;
     char selected_isbn[66] = {'\0'};
-    //int quantity = 0;
     double price = 0.0;
     double cost = 0.0;
 public:
@@ -36,10 +34,9 @@ class Finance {
     friend class Book;
 
 private:
-    // 不需要块状链表, 但应该存储到文件之中
+    // 不需要块状链表
     MemoryRiver<fin_info, 1> fin_report; // 开头记录交易总数
-    //int total = 0;
-    //double TotalCost = 0.0;
+
 public:
     Finance();
     ~Finance();
