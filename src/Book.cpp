@@ -28,40 +28,6 @@ bool BookInfo::operator != (const BookInfo &obj) const {
     else return true;
 }
 
-/*
-Node::Node(const char *index_) {
-    strcpy(index, index_);
-}
-
-Node::Node(const char *index_, const char *isbn_) {
-    strcpy(index, index_);
-    strcpy(isbn, isbn_);
-}
-Node::Node(const char *index_, char *isbn_) {
-    strcpy(index, index_);
-    strcpy(isbn, isbn_);
-}
-
-bool Node::operator == (const Node &obj) const {
-    if (strcmp(index, obj.index) == 0) return true;
-    else return false;
-}
-
-bool Node::operator < (const Node &obj) const {
-    if (strcmp(index, obj.index) < 0) return true;
-    else return false;
-}
-
-bool Node::operator > (const Node &obj) const {
-    if (strcmp(index, obj.index) > 0) return true;
-    else return false;
-}
-
-bool Node::operator != (const Node &obj) const {
-    if (strcmp(index, obj.index) == 0) return false;
-    else return true;
-}*/
-
 Key::Key(const char *index_) {
     strcpy(index, index_);
 }
@@ -116,22 +82,16 @@ Book::~Book(){
 void Book::modify(const char *isbn, const char *name, const char *author, const char* all_key, double price, UserAll &user_all,
                   bool I_flag, bool n_flag, bool a_flag, bool k_flag, bool p_flag) {
     if (user_all.LogUsers.empty()) {
-        //std::cout<<"modify1"<<'\n';
         throw InvalidExp();
     }
     User now_user = user_all.LogUsers.back();
     if (now_user.permission < 3) {
-        //std::cout<<"modify2"<<"\n";
         throw InvalidExp();
     }
     if (!now_user.select_one) {
-        //std::cout<<"modify3"<<'\n';
         throw InvalidExp();
     }
-    //BookInfo tmp(now_user.select_isbn);
-    //BookInfo target;
-    //book_isbn.Find(tmp, target); /// 是不是没有用？
-    //if (!exist) throw InvalidExp();
+
     if (n_flag) {
         // book_name更改
         // 删除的时候已经进行了查找
@@ -165,7 +125,6 @@ void Book::modify(const char *isbn, const char *name, const char *author, const 
                 book_keyword.Delete(pre_keyword_isbn);
             }
         }
-        //target.keyword = all_key;
         strcpy(select_info.keyword, all_key);
         for (auto &it : ans1) {
             char key[66] = {'\0'};
@@ -188,83 +147,50 @@ void Book::modify(const char *isbn, const char *name, const char *author, const 
         /// insert
         bool flag = book_isbn.Insert(select_info);
         if (!flag) {
-            //std::cout<<"modify4"<<'\n';
             throw InvalidExp();
         }
         strcpy(now_user.select_isbn, isbn);
         /// 退出的时候选择书籍没有必要进行保存，所以更新users里面的isbn没有用
-        //user_all.users.Update(now_user);
         user_all.LogUsers.pop_back();
         user_all.LogUsers.push_back(now_user);
         return;
     }
 
-    //book_isbn.Update(target, target.index_num);
-    //book_isbn.Delete(target);
-    //book_isbn.Insert(target);
     /// 如果不更改isbn的话，book_isbn的索引不会改变所以没有必要删除再插入，因为位置并没有改变
     book_isbn.Update(select_info);
 }
 
 void Book::Import(int quantity, double total, UserAll &user_all, Finance &fin) {
-    /*char ch[] = "978-0-03-806690-2";
-    if (strcmp(select_info.ISBN, ch) == 0) {
-        std::cout<<"************************import"<<quantity<<'\n';
-        std::cout<<"************************remain"<<select_info.Quantity<<"\n";
-    }*/
     if (user_all.LogUsers.empty()) {
-        //std::cout<<"import1"<<'\n';
         throw InvalidExp();
     }
     User now_user = user_all.LogUsers.back();
     if (now_user.permission < 3) {
-        /*if (strcmp(select_info.ISBN, ch) == 0) {
-            std::cout<<"************invalid************"<<'\n';
-        }*/
-        //std::cout<<"import2"<<'\n';
         throw InvalidExp();
     }
     if (!now_user.select_one) {
-        //std::cout<<"import3"<<'\n';
         throw InvalidExp();
     }
     /// 可以替换成select_info???
     /// !!!必须是select_info
-   // BookInfo target;
-   // BookInfo tmp(now_user.select_isbn);
-   // bool exist = book_isbn.Find(tmp, target);
-   // if (!exist) throw InvalidExp();// 是不是有些冗余
     select_info.Quantity += quantity;
     double cost = total * 1.0 / quantity;
     /// 和finance 关联
     bool sta = false;
     fin_info node(total, sta, now_user.UserID, quantity, select_info.ISBN, select_info.price, cost);
     int total_count;
-    //fin.fin_report.get_info(total_count, 1);
     total_count = fin.get_total();
     total_count++;
     fin.fin_report.write_info(total_count, 1);
     fin.fin_report.write(node, sizeof(fin_info) * (total_count - 1) + 4);
-    //fin.TotalCost += total;
-
-    //imp_info imp(select_info.ISBN, total, quantity);
 
     select_info.cost = cost;
-    //book_isbn.Update(target, target.index_num);
-    //book_isbn.Delete(target);
-    //book_isbn.Insert(target);
-
-    /*if (strcmp(select_info.ISBN, ch) == 0) {
-        std::cout<<"-----------------------"<<quantity<<"\n";
-        std::cout<<"now---------------------"<<select_info.Quantity<<'\n';
-    }*/
 
     book_isbn.Update(select_info);
 }
 
 std::vector<std::string> Book::SplitWords(const char *keyword) {
     std::vector<std::string> ans1;
-    //std::vector<const char*> ans2;
     if (strlen(keyword) > 60) throw InvalidExp();
     std::string str;
     for (int i = 0; i <= strlen(keyword); i++) {
@@ -283,24 +209,13 @@ std::vector<std::string> Book::SplitWords(const char *keyword) {
         str += keyword[i];
     }
     return ans1;
-    /*for (auto &it : ans1) {
-        TokenScanner::book3(it);
-        //const char *arr = it.c_str();
-        char arr[60] = {'\0'};
-        strcpy(arr, it.c_str());
-        //ans2.push_back(arr);
-    }*/
-    //flag = true;
-    //return ans2;
 }
 
 void Book::buy(const char *isbn, int quantity, UserAll &user_all, Finance &fin) {
     if (quantity <= 0) {
-        //std::cout<<"buy1"<<'\n';
         throw InvalidExp();
     }
     if (user_all.LogUsers.empty()) {
-        //std::cout<<"buy2"<<'\n';
         throw InvalidExp();
     }
     User now_user = user_all.LogUsers.back();
@@ -312,11 +227,9 @@ void Book::buy(const char *isbn, int quantity, UserAll &user_all, Finance &fin) 
     BookInfo buy_book;
     bool exist = book_isbn.Find(target, buy_book);
     if (!exist) {
-        //std::cout<<"buy4"<<'\n';
         throw InvalidExp();
     }
     if (quantity > buy_book.Quantity) {
-        //std::cout<<"buy5"<<'\n';
         throw InvalidExp();
     }
     buy_book.Quantity -= quantity;
@@ -325,7 +238,6 @@ void Book::buy(const char *isbn, int quantity, UserAll &user_all, Finance &fin) 
     /// 和交易系统相关联
     int total_count;
     total_count = fin.get_total();
-    //fin.fin_report.get_info(total_count, 1);
     total_count++;
     fin.fin_report.write_info(total_count, 1);
     bool sta = true;
@@ -335,28 +247,19 @@ void Book::buy(const char *isbn, int quantity, UserAll &user_all, Finance &fin) 
     /// 输出格式？
     std::cout<<std::fixed<<std::setprecision(2)<<cost<<'\n';
 
-    /*char ch[] = "978-0-03-806690-2";
-    if (strcmp(buy_book.ISBN, ch) == 0) {
-        std::cout<<"buy-----------------"<<quantity<<'\n';
-        std::cout<<"--------------------"<<buy_book.Quantity<<'\n';
-    }*/
-
     book_isbn.Update(buy_book);
 }
 
 void Book::show(const char *isbn, const char *name, const char *author, const char *keyword, UserAll &user_all)  {
     if (user_all.LogUsers.empty()) {
-        //std::cout<<"show1"<<'\n';
         throw InvalidExp();
     }
     User now_user = user_all.LogUsers.back();
     if (now_user.permission == 0) {
-        //std::cout<<"show2"<<'\n';
         throw InvalidExp();
     }
     if (name != nullptr) {
         Key name_isbn(name);
-        //Key target;
         // 此时
         std::vector<Key> ans;
         bool exist = book_name.FindAll(name_isbn, ans);
@@ -405,7 +308,6 @@ void Book::show(const char *isbn, const char *name, const char *author, const ch
         }
         for (int i = 0; i < ans.size(); i++) {
             print_isbn(ans[i].isbn);
-            //std::cout<<'\n';
         }
         return;
     }
@@ -450,10 +352,6 @@ void Book::show_all(UserAll &user_all) {
         for (int j = 1; j <= block_index[i].size; j++) {
             BookInfo obj = block_num[j];
             std::cout<<obj.ISBN<<'\t'<<obj.BookName<<'\t'<<obj.Author<<'\t';
-            /*for (int k = 0; k < obj.Keyword.size(); k++) {
-                if (k != obj.Keyword.size() - 1) std::cout<<obj.Keyword[i]<<'|';
-                else std::cout<<obj.Keyword[i]<<'\t';
-            }*/
             std::cout<<obj.keyword<<'\t';
             std::cout<<std::fixed<<std::setprecision(2)<<obj.price<<'\t';
             std::cout<<obj.Quantity<<'\n';
@@ -463,11 +361,9 @@ void Book::show_all(UserAll &user_all) {
 
 void Book::select(const char* isbn_, UserAll &user_all) {
     if (user_all.LogUsers.empty()) {
-        //std::cout<<"select1"<<'\n';
         throw InvalidExp();
     }
     if (user_all.LogUsers.back().permission < 3) {
-        //std::cout<<"select2"<<'\n';
         throw InvalidExp();
     }
     User now_user = user_all.LogUsers.back();
@@ -475,8 +371,7 @@ void Book::select(const char* isbn_, UserAll &user_all) {
     BookInfo obj1(isbn_), obj2;
     bool exist = book_isbn.Find(obj1, obj2);
     if (!exist) {
-        //obj1.isSelected = true;
-        book_isbn.Insert(obj1);// index是isbn
+        book_isbn.Insert(obj1);
         select_info = obj1;
     } else {
         select_info = obj2;
@@ -485,8 +380,4 @@ void Book::select(const char* isbn_, UserAll &user_all) {
     /// select_isbn存在的意义是什么？可以用select_info.isbn代替？？
     strcpy(now_user.select_isbn, isbn_);
     user_all.LogUsers.push_back(now_user);
-    //users.Update(LogUsers.back(), LogUsers.back().index_num);
-    //users.Delete(LogUsers.back());
-    //users.Insert(LogUsers.back());
-    //user_all.users.Update(user_all.LogUsers.back());
 }
