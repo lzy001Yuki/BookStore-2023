@@ -3,7 +3,7 @@
 #include "../include/User.h"
 #include "../include/TokenScanner.h"
 #include "../include/Finance.h"
-#include "../include/Diary.h"
+//#include "../include/Diary.h"
 
 bool processLine(std::string str, UserAll &user_all, Book &book, Finance &finance, Diary &log);
 
