@@ -21,19 +21,14 @@ private:
     int index_num = 0;
     int next = 0;
     char index[70] = {'\0'};
-    //bool isSelected = false; // 及时改变状态,但也不需要？？？
     char ISBN[30] = {'\0'};
     char BookName[70] = {'\0'};
     char Author[70] = {'\0'};
     int Quantity = 0;
     double price = 0.0;
-    //double TotalCost = 0.0; // 注意！保留到小数点后两位 检查与输出
-    //std::vector<const char*> Keyword;// 存储keyword的时候“重复储存”
-    //char keyword[66] = {'\0'};
-    //std::string keyword;
     char keyword[66] = {'\0'};
     bool hasKey = false;
-    double cost = 0.0; // 成本价格, 输出盈利信息
+    double cost = 0.0;
 public:
     BookInfo() = default;
     explicit BookInfo(const char *index_);
@@ -43,32 +38,10 @@ public:
     bool operator < (const BookInfo &obj) const;
     bool operator > (const BookInfo &obj) const;
     bool operator != (const BookInfo &obj) const;
-    //bool operator = (const BookInfo &obj) const;
 };
 
 /// 考虑途径：搜索name->isbn->all所以每次只要更改isbn中的数值就可以
 
-/*class Node{ // 索引为name
-    friend class Block<Node>;
-    friend class Book;
-private:
-    int size = 0;
-    int index_num = 0;
-    int next = 0;
-    char index[66] = {'\0'};
-    char isbn[66] = {'\0'};
-public:
-    Node() = default;
-
-    explicit Node(const char *index_);
-    explicit Node(const char *index_, const char *isbn_);
-    explicit Node(const char *index_, char *isbn_);
-
-    bool operator == (const Node &obj) const;
-    bool operator < (const Node &obj) const;
-    bool operator > (const Node &obj) const;
-    bool operator != (const Node &obj) const;
-};*/
 
 class Key{
     friend class Block<Key>;
