@@ -63,8 +63,7 @@ class UserAll {
     friend class Book;
     friend class Finance;
 private:
-
-    int current_permission = 0;// 现在登录的用户权限
+    int current_permission = 0;
     Block<User> users;
     std::map<std::string, int> log_map;
 
@@ -86,8 +85,6 @@ public:
     void passwd(const char *UserID, const char *CurrentPassword, const char *NewPassword, std::string command, Diary &diary);
 
     void logout(Diary &diary, Book &book);
-
-    //void select(const char *isbn, Book &book);
 
     void exit();
 };
