@@ -57,13 +57,6 @@ public:
         return;
     }
 
-    void write_end(T &t) {
-        file.open(file_name, std::fstream::in | std::fstream::out);
-        file.seekp(0, std::fstream::end);
-        file.write(reinterpret_cast<char*> (&t), sizeofT);
-        file.close();
-    }
-
     // 在文件合适位置写入类对象t，并返回写入的位置索引index
     // 位置索引意味着当输入正确的位置索引index，在以下三个函数中都能顺利的找到目标对象进行操作
     // 位置索引index可以取为对象写入的起始位置
@@ -82,13 +75,6 @@ public:
         return;
     }
 
-    /*void update(T &t, const long long index, int size = 1) {
-        file.open(file_name);
-        file.seekp(index);
-        file.write(reinterpret_cast<char*> (&t), sizeofT * size);
-        file.close();
-    }*/
-
     void clear() {
         file.open(file_name);
         file.clear();
@@ -104,8 +90,8 @@ private:
     MemoryRiver<T, 1> File;
 
 public:
-    const int MAX = 50;
-    const int MIN = 25;
+    const int MAX = 1000;
+    const int MIN = 500;
     explicit Block(std::string file_name) {
         File.initialise(file_name);
     }
@@ -247,8 +233,6 @@ public:
             empty.next = tmp.next;
             empty.index_num = tmp.index_num;
             File.write(empty, 4 + (target - 1) * sizeof(T));
-            //total--;
-            //File.write_info(total,1);
         }
         T check_index[1050], check_num[1050];
         File.read(check_index[1], 4 + (target - 1) * sizeof(T));
@@ -294,7 +278,6 @@ public:
         int theIndex = IndexFind(key);
         File.get_info(total, 1);
         if (total == 0) {
-            //std::cout << "null" << '\n';
             return false;
         }
         T tmp;
@@ -339,7 +322,6 @@ public:
             for (int i = num; i <= tmp.size; i++) {
                 if (strcmp(block_num[i].index, key.index) == 0) {
                     flag = true;
-                    //std::cout << block_num[i].value << ' ';
                     ans.push_back(block_num[i]);
                 } else {
                     nextOne = false;
@@ -347,7 +329,7 @@ public:
                 }
             }
             theIndex = tmp.next;// 下一个块里面可能还有index
-            if (theIndex == 0) {// 找到最后一个块了
+            if (theIndex == 0) {
                 break;
             }
         }
