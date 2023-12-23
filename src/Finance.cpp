@@ -18,7 +18,10 @@ int Finance::get_total() {
 }
 
 void Finance::show_finance(int count, UserAll &user_all) {
-    if (user_all.current_permission != 7) throw InvalidExp();
+    if (user_all.current_permission != 7) {
+        //std::cout<<"finance: no per"<<'\n';
+        throw InvalidExp();
+    }
     int total_count = get_total();
     if (count > total_count) throw InvalidExp();
     if (count == 0) {
