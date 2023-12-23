@@ -48,7 +48,7 @@ public:
 
 /// 考虑途径：搜索name->isbn->all所以每次只要更改isbn中的数值就可以
 
-class Node{ // 索引为name
+/*class Node{ // 索引为name
     friend class Block<Node>;
     friend class Book;
 private:
@@ -68,7 +68,7 @@ public:
     bool operator < (const Node &obj) const;
     bool operator > (const Node &obj) const;
     bool operator != (const Node &obj) const;
-};
+};*/
 
 class Key{
     friend class Block<Key>;
@@ -98,10 +98,11 @@ class Book {
     friend class Finance;
 private:
     Block<BookInfo> book_isbn;
-    Block<Node> book_name; // name->isbn
-    Block<Node> book_author; // author->isbn
+    /// bookname 也有可能一样！！！
+    Block<Key> book_name; // name->isbn
+    Block<Key> book_author; // author->isbn
     Block<Key> book_keyword; // keyword->isbn
-    BookInfo select_info;
+    BookInfo select_info; // 注意这个指的是现在登录的账户的选择图书
 
 public:
     Book() : book_isbn("isbn.txt"), book_name("name.txt"), book_author("author.txt"), book_keyword("keyword.txt") {
