@@ -12,6 +12,7 @@
 #include "error.h"
 #include "Book.h"
 #include "Diary.h"
+#include<unordered_map>
 const int MAX_LEN = 40; // 最大合法字符集为30
 
 //Invalid error;
@@ -34,8 +35,9 @@ private:
     int size = 0;
     char index[MAX_LEN] = {'\0'};
     int next = 0;
-    bool log_status = false; // 未登录状态
-    char select_isbn[66] = {'\0'};
+    //bool log_status = false; // 未登录状态
+    int log_cnt = 0; // 可能多次登录登出，所以要计数 cnt = 0 代表没有登录
+    char select_isbn[66] = {'\0'};/// 不同次登录时的选中图书的isbn可能不相同
     bool select_one = false; // false时不管select_isbn是什么，只有在true时考虑
     //BookInfo select_info;
 public:
@@ -61,11 +63,13 @@ class UserAll {
     friend class Book;
     friend class Finance;
 private:
-    std::vector<User> LogUsers;// 登录栈,现在登录的用户是LogUsers.back()
+
     int current_permission = 0;// 现在登录的用户权限
     Block<User> users;
 
 public:
+    std::vector<User> LogUsers;// 登录栈
+    std::unordered_map<const char*, int> log_map;
     UserAll();
     ~UserAll();
 
