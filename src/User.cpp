@@ -1,184 +1,92 @@
 //
 // Created by Yuki on 2023/12/16.
 //
-#include "../include/User.h"
 
-User::User(const char* index_) {
-    strcpy(index, index_);
-    strcpy(UserID, index_);
-}
+#ifndef BOOKSTORE_USER_H
+#define BOOKSTORE_USER_H
+#include<iostream>
+#include<fstream>
+#include<vector>
+#include<algorithm>
+#include "Block.h"
+#include "error.h"
+#include "Book.h"
+#include "Diary.h"
+#include<unordered_map>
+const int MAX_LEN = 40; // 最大合法字符集为30
 
-bool User::operator == (const User &obj) const {
-    if (strcmp(index, obj.index) == 0) return true;
-    else return false;
-}
-
-bool User::operator < (const User &obj) const {
-    if (strcmp(index, obj.index) < 0) return true;
-    else return false;
-}
-
-bool User::operator > (const User &obj) const {
-    if (strcmp(index, obj.index) > 0) return true;
-    else return false;
-}
-
-bool User::operator != (const User &obj) const {
-    if (strcmp(index, obj.index) == 0) return false;
-    else return true;
-}
-
-UserAll::UserAll() : users("Users.txt") {
-    users.Clear();
-    // 初始时创建店主账户
-    const char *username = "Yuki";
-    const char *password = "sjtu";
-    const char *userid = "root";
-    User owner(userid, password, username, 7);
-    User tmp;
-    bool exist = users.Find(owner, tmp);
-    if (!exist) users.Insert(owner); // 没有创建 ，但就算创建了重复也不会再次插入？？？
-}
-
-UserAll::~UserAll() {
-    users.Clear();
-}
-
-void UserAll::Register(const char *userid, const char *password, const char *username, Diary &diary) {
-    /// 此处的error可以在TokenScanner类里面进行
-    /*error.customer1(userid);
-    error.customer1(password);
-    error.customer2(username);*/
-    User new_customer(userid, password, username, 1);
-    // 插入的同时就已经进行了查找
-    bool flag1;
-    flag1 = users.Insert(new_customer);
-    if (!flag1) throw InvalidExp();
-    else {
-        new_customer.permission = 1;// 顾客状态
+//Invalid error;
+// 路径依赖！
+class Book;
+class BookInfo;
+// 储存用户的基本信息
+class User {
+    friend class UserAll;
+    friend class Block<User>;
+    friend class Book;
+    friend class BookInfo;
+    friend class Finance;
+private:
+    char UserID[MAX_LEN] = {'\0'};
+    char Username[MAX_LEN] = {'\0'};
+    char Password[MAX_LEN] = {'\0'};
+    int permission = 0;// 游客状态
+    int index_num = 0;
+    int size = 0;
+    char index[MAX_LEN] = {'\0'};
+    int next = 0;
+    //bool log_status = false; // 未登录状态
+    int log_cnt = 0; // 可能多次登录登出，所以要计数 cnt = 0 代表没有登录
+    char select_isbn[66] = {'\0'};/// 不同次登录时的选中图书的isbn可能不相同
+    bool select_one = false; // false时不管select_isbn是什么，只有在true时考虑
+    //BookInfo select_info;
+public:
+    User() = default;
+    User(const char* UserID_, const char *Password_, const char* Username_, int permission_) : permission(permission_) , size(0), index_num(0), next(0) {
+        strcpy(UserID, UserID_);
+        strcpy(Username, Username_);
+        strcpy(Password, Password_);
+        strcpy(index, UserID_);
     }
-    Record tmp(userid, "Register", 0);
-    diary.write_diary(tmp);
-}
+    explicit User(const char* index_);
 
-void UserAll::su(const char *userid, const char *password, Diary &diary) {
-    //error.customer1(userid); /// 可以省略
-    User find_one(userid);
-    User su_customer;
-    bool exist = users.Find(find_one, su_customer);
-    if (!exist) throw InvalidExp();
-    if (password == nullptr && current_permission <= su_customer.permission) throw InvalidExp();
-    if (password != nullptr && strcmp(password, su_customer.Password) != 0) throw InvalidExp();
-    // 登录后更改状态
-    current_permission = su_customer.permission;
-    LogUsers.push_back(su_customer);
-    su_customer.log_status = true;
+    bool operator == (const User &obj) const;
 
-    /// Update不更改索引块时
-    users.Update(su_customer);
-    //users.Update(su_customer, su_customer.index_num);
-    //users.Delete(su_customer);
-    //users.Insert(su_customer);
-    /// 写入日志
-    Record tmp(userid, "su", su_customer.permission);
-    diary.write_diary(tmp);
-}
+    bool operator < (const User &obj) const;
 
-void UserAll::logout(Diary &diary, Book &book) {
-    if (LogUsers.empty()) throw InvalidExp();
+    bool operator > (const User &obj) const;
 
-    if (current_permission == 0)  throw InvalidExp();
-    User now_customer = LogUsers.back();
-    User out_customer;
-    /// Find的意义是什么？
-    users.Find(now_customer, out_customer);
-    out_customer.log_status = false;
-    //char empty[66] = {'\0'};
-    //strcpy(out_customer.select_isbn, empty);// 无需保存选中图书
-    out_customer.select_one = false;
-    BookInfo empty;
-    book.select_info = empty;
-    //users.Update(out_customer, out_customer.index_num);
-    //users.Delete(out_customer);
-    //users.Insert(out_customer);
-    users.Update(out_customer);
-    LogUsers.pop_back();
-    if (LogUsers.empty()) current_permission = 0;
-    else {
-        User now_user = LogUsers.back();
-        current_permission = now_user.permission;
+    bool operator != (const User &obj) const;
+};
 
-        /// log_status 有存在的必要吗？
-        /// 用Update?
-        now_user.log_status = true;
-        //users.Update(now_user, now_user.index_num);
-        users.Delete(now_user);
-        users.Insert(now_user);
-    }
-    Record tmp(out_customer.UserID, "logout", out_customer.permission);
-    diary.write_diary(tmp);
-}
+class UserAll {
+    friend class Book;
+    friend class Finance;
+private:
 
-void UserAll::Delete(const char *userid, std::string command, Diary &diary) {
-    if (current_permission < 7) throw InvalidExp();
-    User now_user(userid);
-    User delete_user;
-    bool exist = users.Find(now_user, delete_user);
-    if (!exist) throw InvalidExp();
-    if (delete_user.log_status) throw InvalidExp(); // 删除的账户在登录中
-    /// 优化：在delete之前find的index
-    users.Delete(delete_user);
-    Record tmp(userid, std::move(command), 7);
-    diary.write_diary(tmp);
-}
+    int current_permission = 0;// 现在登录的用户权限
+    Block<User> users;
 
-void UserAll::passwd(const char *userid, const char *current, const char *new_one, std::string command, Diary &diary) {
-    if (current_permission == 0) throw InvalidExp();
-    if (current == nullptr && current_permission < 7) throw InvalidExp();
-    User change_user(userid);
-    User target;
-    bool exist = users.Find(change_user, target);
-    /// 存在问题
-    if (!exist) throw InvalidExp();
-    //error.customer1(new_one);
-    //if (strcmp(LogUsers.back().UserID, userid) == 0) throw InvalidExp();
-    if (strcmp(new_one, target.Password) == 0) throw InvalidExp();
-    if (current != nullptr) if (strcmp(current, target.Password) != 0) throw InvalidExp();
-    if (strcmp(userid, LogUsers.back().UserID) == 0) strcpy(LogUsers.back().Password, new_one);// 修改现在用户的密码
-    strcpy(target.Password, new_one);
-    users.Update(target);
-    Record tmp(userid, std::move(command), current_permission);
-    diary.write_diary(tmp);
-}
+public:
+    std::vector<User> LogUsers;// 登录栈
+    std::unordered_map<const char*, int> log_map;
+    UserAll();
+    ~UserAll();
 
-void UserAll::useradd(const char *userid, const char *Passwd, int privilege, const char *username, std::string command, Diary &diary) {
-    //error.permission(privilege);
-    if (current_permission < 3) throw InvalidExp();
-    if (current_permission < privilege) throw InvalidExp();
-    if (privilege == 7) throw InvalidExp();
-    User add_customer(userid, Passwd, username, privilege);
-    bool exist = users.Insert(add_customer);
-    if (!exist) throw InvalidExp();
-   // Record tmp(userid, std::move(command), current_permission);
-   // diary.write_diary(tmp);
-}
+    void su(const char *UserID, const char *Password, Diary &diary);
 
-/*void UserAll::select(const char *isbn_, Book &book) {
-    BookInfo obj1(isbn_), obj2;
-    bool exist = book.book_isbn.Find(obj1, obj2);
-    if (!exist) {
-        //obj1.isSelected = true;
-        book.book_isbn.Insert(obj1);// index是isbn
-        LogUsers.back().select_info = obj1;
-    } else {
-        LogUsers.back().select_info = obj2;
-    }
-    LogUsers.back().select_one = true;
-    /// select_isbn存在的意义是什么？
-    strcpy(LogUsers.back().select_isbn, isbn_);
-    //users.Update(LogUsers.back(), LogUsers.back().index_num);
-    //users.Delete(LogUsers.back());
-    //users.Insert(LogUsers.back());
-    users.Update(LogUsers.back());
-}*/
+    void Register(const char *UserId, const char *Password, const char *Username, Diary &diary);
 
+    void Delete(const char *UserID, std::string command, Diary &diary);
+
+    void useradd(const char *UserID, const char *Password, int privilege, const char *Username, std::string command, Diary &diary);
+
+    void passwd(const char *UserID, const char *CurrentPassword, const char *NewPassword, std::string command, Diary &diary);
+
+    void logout(Diary &diary, Book &book);
+
+    //void select(const char *isbn, Book &book);
+};
+
+
+#endif //BOOKSTORE_USER_H
