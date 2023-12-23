@@ -9,19 +9,11 @@
 #include <vector>
 #include <cmath>
 
-// 划分指令并且进行指令正确性检查(processLine)
+// 划分指令并且进行指令正确性检查
 class TokenScanner{
 public:
     static void SplitString (std::string str, std::vector<std::string> &all_string);
 
-    ///注意手动释放内存
-    // 检查成功后再转变
-    // 感觉不需要了？
-    /*static char* StringToChar(std::string str) {
-        char* theChar = new char[str.length() + 1];
-        strcpy(theChar, str.c_str());
-        return theChar;
-    }*/
 
     // 检查并且返回Quantity, Count
     static int StringToInteger(std::string str);
