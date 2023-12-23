@@ -77,18 +77,16 @@ void UserAll::su(const char *userid, const char *password, Diary &diary) {
     // 登录后更改状态
     current_permission = su_customer.permission;
     su_customer.log_cnt++;
-    log_map.insert({userid, su_customer.log_cnt});
-    //log_map[userid] = su_customer.log_cnt;
+    std::string str;
+    str.assign(userid);
+    log_map[str] = su_customer.log_cnt;
+
     //su_customer.log_status = true;
     su_customer.select_one = false;
     char empty_ch[66] = {'\0'};
     strcpy(su_customer.select_isbn, empty_ch);
 
     LogUsers.push_back(su_customer);
-
-    ////
-    char ch[] = "T3yikdIWca7z";
-    if (strcmp(userid, ch) == 0) std::cout<<"-----------------------T3yikdIWca7z su!!!!"<<'\n';
 
     /// Update不更改索引块时
     users.Update(su_customer);
@@ -111,22 +109,17 @@ void UserAll::logout(Diary &diary, Book &book) {
     User now_customer = LogUsers.back();
     users.Find(now_customer, out_customer);
     out_customer.log_cnt--;
-    log_map.insert({out_customer.UserID, out_customer.log_cnt});
+    std::string str;
+    str.assign(out_customer.UserID);
+    log_map[str] = out_customer.log_cnt;
 
     /// Find的意义是什么？ LogUsers不可靠！！！
-    //out_customer.log_status = false;
-    //out_customer.log_cnt = 0;
-    //char empty[66] = {'\0'};
-    //strcpy(out_customer.select_isbn, empty);// 无需保存选中图书
+
 
     ///out_customer.select_one = false;存疑？？？
 
     /// 这点可以优化，但还是先不考虑吧。。。。
     users.Update(out_customer);
-
-    ///
-    char ch[] = "T3yikdIWca7z";
-    if (strcmp(out_customer.UserID, ch) == 0) std::cout<<"----------------------------T3yikdIWca7z: logout!!!"<<'\n';
 
     LogUsers.pop_back();
     if (LogUsers.empty()) {
@@ -168,7 +161,9 @@ void UserAll::Delete(const char *userid, std::string command, Diary &diary) {
         //std::cout<<"delete : no exist"<<"\n";
         throw InvalidExp();
     }
-    if (log_map[userid] > 0) {
+    std::string str;
+    str.assign(userid);
+    if (log_map[str] > 0) {
         //std::cout<<"delete: login_ing"<<'\n';
         throw InvalidExp(); // 删除的账户在登录中
     }
@@ -179,11 +174,6 @@ void UserAll::Delete(const char *userid, std::string command, Diary &diary) {
 }
 
 void UserAll::passwd(const char *userid, const char *current, const char *new_one, std::string command, Diary &diary) {
-    /*char ch[] = "qnU4";
-    if (strcmp(userid, ch) == 0) {
-        std::cout<<"-------------------cur"<<current<<'\n';
-        std::cout<<"-------------------new"<<new_one<<"\n";
-    }*/
     if (current_permission == 0) {
         //std::cout<<"*************premission_invalid"<<'\n';
         //std::cout<<"passwd: cp=0"<<'\n';
@@ -202,10 +192,6 @@ void UserAll::passwd(const char *userid, const char *current, const char *new_on
         //std::cout<<"passwd: non_exist"<<'\n';
         throw InvalidExp();
     }
-    //error.customer1(new_one);
-    //if (strcmp(LogUsers.back().UserID, userid) == 0) throw InvalidExp();
-
-    //if (strcmp(new_one, target.Password) == 0) throw InvalidExp();
 
     if (current != nullptr) if (strcmp(current, target.Password) != 0) {
         //std::cout<<"passwd: wrong_pd"<<'\n';
@@ -236,6 +222,10 @@ void UserAll::useradd(const char *userid, const char *Passwd, int privilege, con
     }
    // Record tmp(userid, std::move(command), current_permission);
    // diary.write_diary(tmp);
+}
+
+void UserAll::exit() {
+    log_map.clear();
 }
 
 
