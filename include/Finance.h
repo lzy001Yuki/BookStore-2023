@@ -47,7 +47,7 @@ public:
 
     void read();
 
-    void show_finance(int count);
+    void show_finance(int count, UserAll &user_all);
 
     void report_finance(UserAll &user_all);
 
