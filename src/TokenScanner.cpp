@@ -14,15 +14,6 @@ void TokenScanner::SplitString (std::string str, std::vector<std::string> &all_s
     }
 }
 
-///注意手动释放内存
-// 检查成功后再转变
-// 感觉不需要了？
-/*static char* StringToChar(std::string str) {
-    char* theChar = new char[str.length() + 1];
-    strcpy(theChar, str.c_str());
-    return theChar;
-}*/
-
 // 检查并且返回Quantity, Count
 int TokenScanner::StringToInteger(std::string str) {
     if (str.length() > 10) throw InvalidExp();
@@ -46,7 +37,9 @@ void TokenScanner::customer1(std::string str) {
                 if (str[i] < 'a' || str[i] > 'z') {
                     if (str[i] < 'A' ||str[i] > 'Z') {
                         if (str[i] != '_') {
-                            throw InvalidExp();
+                            if (str[i] != '\r') {
+                                throw InvalidExp();
+                            }
                         }
                     }
                 }
