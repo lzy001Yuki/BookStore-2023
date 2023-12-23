@@ -19,7 +19,6 @@ int Finance::get_total() {
 
 void Finance::show_finance(int count, UserAll &user_all) {
     if (user_all.current_permission != 7) {
-        //std::cout<<"finance: no per"<<'\n';
         throw InvalidExp();
     }
     int total_count = get_total();
@@ -57,14 +56,10 @@ void Finance::report_finance(UserAll &user_all) {
     int in = 0, out = 0;
     for (int i = 0; i < total; i++) {
         if (all[i].status) {
-            //in++;
-            //std::cout<<in<<'\t';
             std::cout<<"INCOME: "<<'\t'<<std::fixed<<std::setprecision(2)<<all[i].number<<'\t';
             std::cout<<"by user(ID):"<<'\t'<<all[i].userid<<'\n';
             income += all[i].number;
         } else {
-            //out++;
-            //std::cout<<out<<'\t';
             std::cout<<"EXPENSE:"<<'\t'<<std::fixed<<std::setprecision(2)<<all[i].number<<'\t';
             std::cout<<"by user(ID):"<<'\t'<<all[i].userid<<'\n';
             expense += all[i].number;
