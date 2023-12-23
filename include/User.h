@@ -12,7 +12,7 @@
 #include "error.h"
 #include "Book.h"
 #include "Diary.h"
-#include<unordered_map>
+#include<map>
 const int MAX_LEN = 40; // 最大合法字符集为30
 
 //Invalid error;
@@ -66,10 +66,12 @@ private:
 
     int current_permission = 0;// 现在登录的用户权限
     Block<User> users;
+    std::map<std::string, int> log_map;
 
 public:
+
     std::vector<User> LogUsers;// 登录栈
-    std::unordered_map<const char*, int> log_map;
+
     UserAll();
     ~UserAll();
 
@@ -86,6 +88,8 @@ public:
     void logout(Diary &diary, Book &book);
 
     //void select(const char *isbn, Book &book);
+
+    void exit();
 };
 
 
