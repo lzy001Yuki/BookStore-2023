@@ -50,7 +50,6 @@ void UserAll::Register(const char *userid, const char *password, const char *use
     bool flag1;
     flag1 = users.Insert(new_customer);
     if (!flag1) {
-        std::cout<<"register: already exist"<<'\n';
         throw InvalidExp();
     }
     else {
@@ -105,7 +104,6 @@ void UserAll::logout(Diary &diary, Book &book) {
     users.Find(now_customer, out_customer);
     std::string str;
     str.assign(out_customer.UserID);
-    //log_map[str] = out_customer.log_cnt;
     log_map[str]--;
 
     /// 这点可以优化，但还是先不考虑吧。。。。
@@ -161,7 +159,6 @@ void UserAll::passwd(const char *userid, const char *current, const char *new_on
     User change_user(userid);
     User target;
     bool exist = users.Find(change_user, target);
-    /// 存在问题
     if (!exist) {
         throw InvalidExp();
     }
@@ -188,7 +185,7 @@ void UserAll::useradd(const char *userid, const char *Passwd, int privilege, con
     bool exist = users.Insert(add_customer);
     if (!exist) {
         throw InvalidExp();
-    }
+    } // 其实是已经存在的意思
     Record tmp(LogUsers.back().UserID, command, current_permission);
     diary.write_diary(tmp);
 }
