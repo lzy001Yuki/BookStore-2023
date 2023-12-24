@@ -65,7 +65,6 @@ void UserAll::su(const char *userid, const char *password, Diary &diary) {
     User su_customer;
     bool exist = users.Find(find_one, su_customer);
     if (!exist) {
-        //std::cout<<"su : no exist"<<'\n';
         throw InvalidExp();
     }
     if (password == nullptr && current_permission <= su_customer.permission) {
@@ -80,8 +79,7 @@ void UserAll::su(const char *userid, const char *password, Diary &diary) {
     std::string str;
     str.assign(userid);
     log_map[str] = su_customer.log_cnt;
-
-    //su_customer.log_status = true;
+    
     su_customer.select_one = false;
     char empty_ch[66] = {'\0'};
     strcpy(su_customer.select_isbn, empty_ch);
@@ -98,11 +96,9 @@ void UserAll::su(const char *userid, const char *password, Diary &diary) {
 
 void UserAll::logout(Diary &diary, Book &book) {
     if (LogUsers.empty()) {
-        //std::cout<<"logout: no login"<<"\n";
         throw InvalidExp();
     }
     if (current_permission == 0)  {
-        //std::cout<<"logout: per = 0"<<'\n';
         throw InvalidExp();
     }
     User out_customer;
@@ -112,11 +108,6 @@ void UserAll::logout(Diary &diary, Book &book) {
     std::string str;
     str.assign(out_customer.UserID);
     log_map[str] = out_customer.log_cnt;
-
-    /// Find的意义是什么？ LogUsers不可靠！！！
-
-
-    ///out_customer.select_one = false;存疑？？？
 
     /// 这点可以优化，但还是先不考虑吧。。。。
     users.Update(out_customer);
@@ -130,20 +121,11 @@ void UserAll::logout(Diary &diary, Book &book) {
     else {
         User new_user = LogUsers.back();
         current_permission = new_user.permission;
-        //User true_user;
-        //bool the_flag = false;
-        //users.Find()
-        /// log_status 有存在的必要吗？
         /// 用Update?
         /// now_user会重复登录，更改密码不能只更改最新的那一个， 所有更改均是如此，LogUsers只提供一个记录登录的用户的功能
-
-        //now_user.log_status = true;
-
-        //current_permission = true_user.permission;
-        //true_user.log_status = true;
+        
         BookInfo target(new_user.select_isbn);
         book.book_isbn.Find(target, book.select_info);
-        //users.Update(true_user);
     }
     Record tmp(out_customer.UserID, "logout", out_customer.permission);
     diary.write_diary(tmp);
@@ -151,20 +133,17 @@ void UserAll::logout(Diary &diary, Book &book) {
 
 void UserAll::Delete(const char *userid, std::string command, Diary &diary) {
     if (current_permission < 7) {
-        //std::cout<<"delete: no permission"<<'\n';
         throw InvalidExp();
     }
     User now_user(userid);
     User delete_user;
     bool exist = users.Find(now_user, delete_user);
     if (!exist) {
-        //std::cout<<"delete : no exist"<<"\n";
         throw InvalidExp();
     }
     std::string str;
     str.assign(userid);
     if (log_map[str] > 0) {
-        //std::cout<<"delete: login_ing"<<'\n';
         throw InvalidExp(); // 删除的账户在登录中
     }
     /// 优化：在delete之前find的index
@@ -175,13 +154,9 @@ void UserAll::Delete(const char *userid, std::string command, Diary &diary) {
 
 void UserAll::passwd(const char *userid, const char *current, const char *new_one, std::string command, Diary &diary) {
     if (current_permission == 0) {
-        //std::cout<<"*************premission_invalid"<<'\n';
-        //std::cout<<"passwd: cp=0"<<'\n';
         throw InvalidExp();
     }
     if (current == nullptr && current_permission < 7) {
-        //std::cout<<"*************non_invalid"<<'\n';
-        //std::cout<<"passwd: cp != 7"<<'\n';
         throw InvalidExp();
     }
     User change_user(userid);
@@ -189,12 +164,10 @@ void UserAll::passwd(const char *userid, const char *current, const char *new_on
     bool exist = users.Find(change_user, target);
     /// 存在问题
     if (!exist) {
-        //std::cout<<"passwd: non_exist"<<'\n';
         throw InvalidExp();
     }
 
     if (current != nullptr) if (strcmp(current, target.Password) != 0) {
-        //std::cout<<"passwd: wrong_pd"<<'\n';
         throw InvalidExp();
     }
     if (strcmp(userid, LogUsers.back().UserID) == 0) strcpy(LogUsers.back().Password, new_one);// 修改现在用户的密码,但感觉没有什么必要
@@ -206,18 +179,15 @@ void UserAll::passwd(const char *userid, const char *current, const char *new_on
 
 void UserAll::useradd(const char *userid, const char *Passwd, int privilege, const char *username, std::string command, Diary &diary) {
     if (current_permission < 3) {
-        //std::cout<<"useradd: no cp"<<"\n";
         throw InvalidExp();
     }
     if (current_permission < privilege) {
-        //std::cout<<"useradd: less cp"<<"\n";
         throw InvalidExp();
     }
     if (privilege == 7) throw InvalidExp();
     User add_customer(userid, Passwd, username, privilege);
     bool exist = users.Insert(add_customer);
     if (!exist) {
-        //std::cout<<"useradd: already exist"<<'\n';
         throw InvalidExp();
     }
    // Record tmp(userid, std::move(command), current_permission);
