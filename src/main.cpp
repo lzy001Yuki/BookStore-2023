@@ -8,7 +8,6 @@
 bool processLine(std::string str, UserAll &user_all, Book &book, Finance &finance, Diary &log);
 
 int main() {
-    freopen("output", "w", stdout);
     UserAll user_all;
     Book book;
     Finance fin;
