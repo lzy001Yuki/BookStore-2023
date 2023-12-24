@@ -18,4 +18,6 @@ add_executable(code
         include/User.h
         include/TokenScanner.h
         include/Finance.h
+        src/Diary.cpp
+        include/Diary.h
 )
