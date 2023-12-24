@@ -219,7 +219,7 @@ std::vector<std::string> Book::SplitWords(const char *keyword) {
 }
 
 void Book::buy(const char *isbn, int quantity, UserAll &user_all, Finance &fin, Diary &diary,const char *command) {
-    if (quantity < 0) {
+    if (quantity <= 0) {
         throw InvalidExp();
     }
     if (user_all.LogUsers.empty()) {
