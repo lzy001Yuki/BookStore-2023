@@ -75,10 +75,9 @@ void UserAll::su(const char *userid, const char *password, Diary &diary) {
     }
     // 登录后更改状态
     current_permission = su_customer.permission;
-    su_customer.log_cnt++;
     std::string str;
     str.assign(userid);
-    log_map[str] = su_customer.log_cnt;
+    log_map[str]++;
 
     su_customer.select_one = false;
     char empty_ch[66] = {'\0'};
@@ -104,10 +103,10 @@ void UserAll::logout(Diary &diary, Book &book) {
     User out_customer;
     User now_customer = LogUsers.back();
     users.Find(now_customer, out_customer);
-    out_customer.log_cnt--;
     std::string str;
     str.assign(out_customer.UserID);
-    log_map[str] = out_customer.log_cnt;
+    //log_map[str] = out_customer.log_cnt;
+    log_map[str]--;
 
     /// 这点可以优化，但还是先不考虑吧。。。。
     users.Update(out_customer);
