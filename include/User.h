@@ -26,6 +26,7 @@ class User {
     friend class Book;
     friend class BookInfo;
     friend class Finance;
+    friend class Diary;
 private:
     char UserID[MAX_LEN] = {'\0'};
     char Username[MAX_LEN] = {'\0'};
@@ -37,10 +38,10 @@ private:
     int next = 0;
     //bool log_status = false; // 未登录状态
     int log_cnt = 0; // 可能多次登录登出，所以要计数 cnt = 0 代表没有登录
-    char select_isbn[66] = {'\0'};/// 不同次登录时的选中图书的isbn可能不相同
     bool select_one = false; // false时不管select_isbn是什么，只有在true时考虑
     //BookInfo select_info;
 public:
+    char select_isbn[66] = {'\0'};/// 不同次登录时的选中图书的isbn可能不相同
     User() = default;
     User(const char* UserID_, const char *Password_, const char* Username_, int permission_) : permission(permission_) , size(0), index_num(0), next(0) {
         strcpy(UserID, UserID_);
@@ -57,6 +58,7 @@ public:
     bool operator > (const User &obj) const;
 
     bool operator != (const User &obj) const;
+
 };
 
 class UserAll {
@@ -78,11 +80,11 @@ public:
 
     void Register(const char *UserId, const char *Password, const char *Username, Diary &diary);
 
-    void Delete(const char *UserID, std::string command, Diary &diary);
+    void Delete(const char *UserID, const char* command, Diary &diary);
 
-    void useradd(const char *UserID, const char *Password, int privilege, const char *Username, std::string command, Diary &diary);
+    void useradd(const char *UserID, const char *Password, int privilege, const char *Username, const char* command, Diary &diary);
 
-    void passwd(const char *UserID, const char *CurrentPassword, const char *NewPassword, std::string command, Diary &diary);
+    void passwd(const char *UserID, const char *CurrentPassword, const char *NewPassword, const char* command, Diary &diary);
 
     void logout(Diary &diary, Book &book);
 
