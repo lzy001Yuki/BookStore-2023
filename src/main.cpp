@@ -8,6 +8,7 @@
 bool processLine(std::string str, UserAll &user_all, Book &book, Finance &finance, Diary &log);
 
 int main() {
+    freopen("output", "w", stdout);
     UserAll user_all;
     Book book;
     Finance fin;
@@ -77,12 +78,22 @@ bool processLine(std::string str, UserAll &user_all, Book &book, Finance &financ
             TokenScanner::customer1(parse[2]);
             char currentPasswd[40] = {'\0'};
             strcpy(currentPasswd, parse[2].c_str());
-            user_all.passwd(userid, currentPasswd, newPasswd, command, log);
+            char op[1000] = {'\0'};
+            std::string str1 = "change ";
+            std::string str2 = "'s password to ";
+            std::string the_op = str1 + parse[1] + str2 + parse[3];
+            strcpy(op, the_op.c_str());
+            user_all.passwd(userid, currentPasswd, newPasswd, op, log);
         } else {
             TokenScanner::customer1(parse[2]);
             char newPasswd[40] = {'\0'};
             strcpy(newPasswd, parse[2].c_str());
-            user_all.passwd(userid, nullptr, newPasswd, command, log);
+            char op[1000] = {'\0'};
+            std::string str1 = "change ";
+            std::string str2 = "'s password to ";
+            std::string the_op = str1 + parse[1] + str2 + parse[2];
+            strcpy(op, the_op.c_str());
+            user_all.passwd(userid, nullptr, newPasswd, op, log);
         }
     } else if (command == "useradd") {
         if (parse.size() != 5) throw InvalidExp();
@@ -97,19 +108,25 @@ bool processLine(std::string str, UserAll &user_all, Book &book, Finance &financ
         char username[40] = {'\0'};
         strcpy(username, parse[4].c_str());
         int privilege = std::stoi(parse[3]);
-        user_all.useradd(userid, passwd, privilege, username,command, log);
+        char op[1000] = {'\0'};
+        strcpy(op, str.c_str());
+        user_all.useradd(userid, passwd, privilege, username, op, log);
     } else if (command == "delete") {
         if (parse.size() != 2) throw InvalidExp();
         TokenScanner::customer1(parse[1]);
         char userid[40] = {'\0'};
         strcpy(userid, parse[1].c_str());
-        user_all.Delete(userid, command, log);
+        char op[1000] = {'\0'};
+        strcpy(op, str.c_str());
+        user_all.Delete(userid, op, log);
     } else if (command == "select") {
         if (parse.size() != 2) throw InvalidExp();
         TokenScanner::book1(parse[1]);
         char isbn_[30] = {'\0'};
         strcpy(isbn_, parse[1].c_str());
-        book.select(isbn_, user_all);
+        char op[1000] = {'\0'};
+        strcpy(op, str.c_str());
+        book.select(isbn_, user_all, log, op);
     } else if (command == "buy") {
         if (parse.size() != 3) throw InvalidExp();
         TokenScanner::book1(parse[1]);
@@ -117,16 +134,30 @@ bool processLine(std::string str, UserAll &user_all, Book &book, Finance &financ
         char isbn_[30] = {'\0'};
         strcpy(isbn_, parse[1].c_str());
         int quantity = TokenScanner::StringToInteger(parse[2]);
-        book.buy(isbn_, quantity, user_all, finance);
+        char op[1000] = {'\0'};
+        std::string str1 = " [quantity] ";
+        std::string str2 = " ";
+        std::string the_op = command + str2 + parse[1] + str1 + parse[2];
+        strcpy(op, the_op.c_str());
+        book.buy(isbn_, quantity, user_all, finance, log, op);
     } else if (command == "import") {
         if (parse.size() != 3) throw InvalidExp();
         int quantity = TokenScanner::StringToInteger(parse[1]);
         double totalCost = TokenScanner::book4(parse[2]);
-        book.Import(quantity, totalCost, user_all, finance);
+        char op[1000] = {'\0'};
+        std::string str1;
+        str1.assign(user_all.LogUsers.back().select_isbn);
+        std::string str2 = " ";
+        std::string str3 = " [quantity] ";
+        std::string the_op = command + str2 + str1 + str3 + parse[1];
+        strcpy(op, the_op.c_str());
+        book.Import(quantity, totalCost, user_all, finance, log, op);
     } else if (command == "show" ) {
         if (parse.size() > 2 && parse[1] != "finance") throw InvalidExp();
         if (parse.size() == 1) {
-            book.show_all(user_all);
+            char op[1000] = {'\0'};
+            strcpy(op, str.c_str());
+            book.show_all(user_all, log, op);
         } else {
             if (parse[1] != "finance") {
                 std::string tmp = TokenScanner::cut(parse[1]);
@@ -135,21 +166,27 @@ bool processLine(std::string str, UserAll &user_all, Book &book, Finance &financ
                     TokenScanner::book1(tmp);
                     char isbn_[30] = {'\0'};
                     strcpy(isbn_, tmp.c_str());
-                    book.show(isbn_, nullptr, nullptr, nullptr, user_all);
+                    char op[1000] = {'\0'};
+                    strcpy(op, str.c_str());
+                    book.show(isbn_, nullptr, nullptr, nullptr, user_all, log, op);
                 }
                 if (parse[1][1] == 'n') {
                     // name
                     TokenScanner::book2(tmp);
                     char name[70] = {'\0'};
                     strcpy(name, tmp.c_str());
-                    book.show(nullptr, name, nullptr, nullptr, user_all);
+                    char op[1000] = {'\0'};
+                    strcpy(op, str.c_str());
+                    book.show(nullptr, name, nullptr, nullptr, user_all, log, op);
                 }
                 if (parse[1][1] == 'a') {
                     // author
                     TokenScanner::book2(tmp);
                     char author[70] = {'\0'};
                     strcpy(author, tmp.c_str());
-                    book.show(nullptr, nullptr, author, nullptr, user_all);
+                    char op[1000] = {'\0'};
+                    strcpy(op, str.c_str());
+                    book.show(nullptr, nullptr, author, nullptr, user_all, log, op);
                 }
                 if (parse[1][1] == 'k') {
                     // keyWords
@@ -157,7 +194,9 @@ bool processLine(std::string str, UserAll &user_all, Book &book, Finance &financ
                     TokenScanner::book3(tmp);
                     char key[70] = {'\0'};
                     strcpy(key, tmp.c_str());
-                    book.show(nullptr, nullptr, nullptr, key, user_all);
+                    char op[1000] = {'\0'};
+                    strcpy(op, str.c_str());
+                    book.show(nullptr, nullptr, nullptr, key, user_all, log, op);
                 }
             } else {
                 if (parse.size() > 3) throw InvalidExp();
@@ -210,17 +249,25 @@ bool processLine(std::string str, UserAll &user_all, Book &book, Finance &financ
                 price = TokenScanner::book4(tmp);
             } else throw InvalidExp();
         }
-        book.modify(isbn_, name, author, keyword, price, user_all, I_flag, n_flag, a_flag, k_flag, p_flag);
+        char op[1000] = {'\0'};
+        std::string the_op;
+        std::string str1 = "[book] ";
+        std::string str2;
+        str2.assign(user_all.LogUsers.back().select_isbn);
+        std::string str3 = " ";
+        the_op = str1 + str2 + str3 + str;
+        strcpy(op, the_op.c_str());
+        book.modify(isbn_, name, author, keyword, price, user_all, I_flag, n_flag, a_flag, k_flag, p_flag, log, op);
     } else if (command == "report") {
         if (parse.size() != 2) throw InvalidExp();
         if (parse[1] == "finance") {
             finance.report_finance(user_all);
         } else if (parse[1] == "employee") {
-
+            log.read_employee(user_all);
         } else throw InvalidExp();
     } else if (command == "log") {
         if (parse.size() != 1) throw InvalidExp();
-        log.read_all();
+        log.read_all(user_all);
     } else throw InvalidExp();
     return true;
 }
