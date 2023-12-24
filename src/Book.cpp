@@ -80,7 +80,7 @@ Book::~Book(){
 
 
 void Book::modify(const char *isbn, const char *name, const char *author, const char* all_key, double price, UserAll &user_all,
-                  bool I_flag, bool n_flag, bool a_flag, bool k_flag, bool p_flag) {
+                  bool I_flag, bool n_flag, bool a_flag, bool k_flag, bool p_flag, Diary &diary, const char* command) {
     if (user_all.LogUsers.empty()) {
         throw InvalidExp();
     }
@@ -158,9 +158,12 @@ void Book::modify(const char *isbn, const char *name, const char *author, const 
 
     /// 如果不更改isbn的话，book_isbn的索引不会改变所以没有必要删除再插入，因为位置并没有改变
     book_isbn.Update(select_info);
+
+    Record tmp(user_all.LogUsers.back().UserID, command, user_all.LogUsers.back().permission);
+    diary.write_diary(tmp);
 }
 
-void Book::Import(int quantity, double total, UserAll &user_all, Finance &fin) {
+void Book::Import(int quantity, double total, UserAll &user_all, Finance &fin, Diary &diary, const char* command) {
     if (user_all.LogUsers.empty()) {
         throw InvalidExp();
     }
@@ -187,6 +190,10 @@ void Book::Import(int quantity, double total, UserAll &user_all, Finance &fin) {
     select_info.cost = cost;
 
     book_isbn.Update(select_info);
+
+
+    Record tmp(user_all.LogUsers.back().UserID, command, user_all.LogUsers.back().permission, total, false);
+    diary.write_diary(tmp);
 }
 
 std::vector<std::string> Book::SplitWords(const char *keyword) {
@@ -211,7 +218,7 @@ std::vector<std::string> Book::SplitWords(const char *keyword) {
     return ans1;
 }
 
-void Book::buy(const char *isbn, int quantity, UserAll &user_all, Finance &fin) {
+void Book::buy(const char *isbn, int quantity, UserAll &user_all, Finance &fin, Diary &diary,const char *command) {
     if (quantity < 0) {
         throw InvalidExp();
     }
@@ -248,9 +255,12 @@ void Book::buy(const char *isbn, int quantity, UserAll &user_all, Finance &fin) 
     std::cout<<std::fixed<<std::setprecision(2)<<cost<<'\n';
 
     book_isbn.Update(buy_book);
+
+    Record tmp(now_user.UserID, command, now_user.permission, cost, true);
+    diary.write_diary(tmp);
 }
 
-void Book::show(const char *isbn, const char *name, const char *author, const char *keyword, UserAll &user_all)  {
+void Book::show(const char *isbn, const char *name, const char *author, const char *keyword, UserAll &user_all, Diary &diary, const char* command)  {
     if (user_all.LogUsers.empty()) {
         throw InvalidExp();
     }
@@ -322,6 +332,9 @@ void Book::show(const char *isbn, const char *name, const char *author, const ch
         print_isbn(target.ISBN);
         return;
     }
+
+    Record tmp(now_user.UserID, command, now_user.permission);
+    diary.write_diary(tmp);
 }
 
 void Book::print_isbn(char *isbn) {
@@ -339,7 +352,8 @@ void Book::print_isbn(char *isbn) {
     }
 }
 
-void Book::show_all(UserAll &user_all) {
+void Book::show_all(UserAll &user_all, Diary &diary, const char* command) {
+    if (user_all.LogUsers.empty()) throw InvalidExp();
     BookInfo block_index[1000], block_num[1000];
     User now_user = user_all.LogUsers.back();
     if (now_user.permission == 0) throw InvalidExp();
@@ -357,9 +371,12 @@ void Book::show_all(UserAll &user_all) {
             std::cout<<obj.Quantity<<'\n';
         }
     }
+
+    Record tmp(now_user.UserID, command, now_user.permission);
+    diary.write_diary(tmp);
 }
 
-void Book::select(const char* isbn_, UserAll &user_all) {
+void Book::select(const char* isbn_, UserAll &user_all, Diary &diary, const char *command) {
     if (user_all.LogUsers.empty()) {
         throw InvalidExp();
     }
@@ -380,4 +397,7 @@ void Book::select(const char* isbn_, UserAll &user_all) {
     /// select_isbn存在的意义是什么？可以用select_info.isbn代替？？
     strcpy(now_user.select_isbn, isbn_);
     user_all.LogUsers.push_back(now_user);
+
+    Record tmp(user_all.LogUsers.back().UserID, command, user_all.LogUsers.back().permission);
+    diary.write_diary(tmp);
 }
