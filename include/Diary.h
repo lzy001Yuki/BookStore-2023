@@ -20,7 +20,7 @@ public:
 
 };
 
-// 每次都写在文件末尾
+// 写在末尾
 class Diary{
 private:
     MemoryRiver<Record, 1> diary;
