@@ -10,6 +10,7 @@
 
 class UserAll;
 class Finance;
+class Diary;
 
 class BookInfo{
     friend class Book;
@@ -75,9 +76,10 @@ private:
     Block<Key> book_name; // name->isbn
     Block<Key> book_author; // author->isbn
     Block<Key> book_keyword; // keyword->isbn
-    BookInfo select_info; // 注意这个指的是现在登录的账户的选择图书
+     // 注意这个指的是现在登录的账户的选择图书
 
 public:
+    BookInfo select_info;
     Book() : book_isbn("isbn.txt"), book_name("name.txt"), book_author("author.txt"), book_keyword("keyword.txt") {
         book_isbn.Clear();
         book_name.Clear();
@@ -87,21 +89,21 @@ public:
     ~Book() ;
 
     void modify(const char *isbn, const char *name, const char *author, const char* all_key, double price, UserAll &user_all,
-                bool I_flag, bool n_flag, bool a_flag, bool k_flag, bool p_flag);
+                bool I_flag, bool n_flag, bool a_flag, bool k_flag, bool p_flag, Diary &diary, const char* command);
 
-    void Import(int quantity, double total, UserAll &user_all, Finance &fin) ;
+    void Import(int quantity, double total, UserAll &user_all, Finance &fin, Diary &diary, const char* command) ;
 
     static std::vector<std::string> SplitWords(const char *keyword) ;
 
-    void buy(const char *isbn, int quantity, UserAll &user_all, Finance &fin);
+    void buy(const char *isbn, int quantity, UserAll &user_all, Finance &fin, Diary &diary, const char* command);
 
-    void show(const char *isbn, const char *name, const char *author, const char *keyword, UserAll &user_all) ;
+    void show(const char *isbn, const char *name, const char *author, const char *keyword, UserAll &user_all, Diary &diary, const char* command) ;
 
     void print_isbn(char *isbn) ;
 
-    void show_all(UserAll &user_all) ;
+    void show_all(UserAll &user_all, Diary &diary, const char* command) ;
 
-    void select(const char* isbn_, UserAll &user_all);
+    void select(const char* isbn_, UserAll &user_all, Diary &dairy, const char* command);
 
 };
 
