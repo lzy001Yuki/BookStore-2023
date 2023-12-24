@@ -79,7 +79,7 @@ void UserAll::su(const char *userid, const char *password, Diary &diary) {
     std::string str;
     str.assign(userid);
     log_map[str] = su_customer.log_cnt;
-    
+
     su_customer.select_one = false;
     char empty_ch[66] = {'\0'};
     strcpy(su_customer.select_isbn, empty_ch);
@@ -123,7 +123,7 @@ void UserAll::logout(Diary &diary, Book &book) {
         current_permission = new_user.permission;
         /// 用Update?
         /// now_user会重复登录，更改密码不能只更改最新的那一个， 所有更改均是如此，LogUsers只提供一个记录登录的用户的功能
-        
+
         BookInfo target(new_user.select_isbn);
         book.book_isbn.Find(target, book.select_info);
     }
@@ -131,7 +131,7 @@ void UserAll::logout(Diary &diary, Book &book) {
     diary.write_diary(tmp);
 }
 
-void UserAll::Delete(const char *userid, std::string command, Diary &diary) {
+void UserAll::Delete(const char *userid, const char* command, Diary &diary) {
     if (current_permission < 7) {
         throw InvalidExp();
     }
@@ -148,11 +148,11 @@ void UserAll::Delete(const char *userid, std::string command, Diary &diary) {
     }
     /// 优化：在delete之前find的index
     users.Delete(delete_user);
-    Record tmp(userid, std::move(command), 7);
+    Record tmp(LogUsers.back().UserID, command, 7);
     diary.write_diary(tmp);
 }
 
-void UserAll::passwd(const char *userid, const char *current, const char *new_one, std::string command, Diary &diary) {
+void UserAll::passwd(const char *userid, const char *current, const char *new_one, const char* command, Diary &diary) {
     if (current_permission == 0) {
         throw InvalidExp();
     }
@@ -173,11 +173,11 @@ void UserAll::passwd(const char *userid, const char *current, const char *new_on
     if (strcmp(userid, LogUsers.back().UserID) == 0) strcpy(LogUsers.back().Password, new_one);// 修改现在用户的密码,但感觉没有什么必要
     strcpy(target.Password, new_one);
     users.Update(target);
-    Record tmp(userid, std::move(command), current_permission);
+    Record tmp(LogUsers.back().UserID, command, current_permission);
     diary.write_diary(tmp);
 }
 
-void UserAll::useradd(const char *userid, const char *Passwd, int privilege, const char *username, std::string command, Diary &diary) {
+void UserAll::useradd(const char *userid, const char *Passwd, int privilege, const char *username, const char* command, Diary &diary) {
     if (current_permission < 3) {
         throw InvalidExp();
     }
@@ -190,8 +190,8 @@ void UserAll::useradd(const char *userid, const char *Passwd, int privilege, con
     if (!exist) {
         throw InvalidExp();
     }
-   // Record tmp(userid, std::move(command), current_permission);
-   // diary.write_diary(tmp);
+    Record tmp(LogUsers.back().UserID, command, current_permission);
+    diary.write_diary(tmp);
 }
 
 void UserAll::exit() {
